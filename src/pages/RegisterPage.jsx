@@ -71,7 +71,7 @@ export default function RegisterPage() {
               />
               <Input
                 label="Correo electrónico"
-                type="email"
+                type="text"
                 placeholder="tu@email.com"
                 icon={<Mail />}
                 value={email}

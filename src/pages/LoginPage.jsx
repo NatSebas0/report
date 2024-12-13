@@ -43,7 +43,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               <Input
                 label="Correo electrónico"
-                type="email"
+                type="text"
                 placeholder="tu@email.com"
                 icon={<Mail />}
                 value={email}

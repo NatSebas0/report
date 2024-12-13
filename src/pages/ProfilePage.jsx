@@ -1,4 +1,3 @@
-// src/pages/ProfilePage.jsx
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Settings, Star, Package, History, CreditCard, Bell } from 'lucide-react';
@@ -13,7 +12,7 @@ export default function ProfilePage() {
   const { currentUser } = useContext(AuthContext);
   const auctions = getLocalStorage('auctions') || [];
 
-  // Encontrar todas las pujas realizadas por el usuario
+  // Pujas del usuario
   let userBids = [];
   auctions.forEach(a => {
     a.bids.forEach(bid => {
@@ -29,11 +28,14 @@ export default function ProfilePage() {
     });
   });
 
-  // Subastas ganadas
+  // Subastas ganadas (pagadas)
   const wonAuctions = auctions.filter(a => a.winner && a.winner.email === currentUser.email && a.isPaid);
 
-  // Subastas activas del usuario (adaptar la lógica según tus datos)
-  const userAuctions = auctions.filter(a => a.seller && a.seller.email === currentUser.email && !a.ended);
+  // Subastas ganadas pero aún no pagadas
+  const wonUnpaidAuctions = auctions.filter(a => a.winner && a.winner.email === currentUser.email && !a.isPaid);
+
+  // Subastas activas del usuario (asumimos que ended = false si no se ha terminado)
+  const userAuctions = auctions.filter(a => a.seller && a.seller.email === currentUser.email && !a.winner && !a.isPaid);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -51,7 +53,7 @@ export default function ProfilePage() {
                     className="h-24 w-24 rounded-full mx-auto"
                   />
                   <h2 className="mt-4 text-xl font-semibold">{currentUser.username}</h2>
-                  <p className="text-gray-500">Miembro desde {new Date(currentUser.memberSince).getFullYear()}</p>
+                  <p className="text-gray-500">Miembro desde {new Date(currentUser.memberSince || Date.now()).getFullYear()}</p>
                 </div>
 
                 <div className="flex justify-center">
@@ -96,7 +98,8 @@ export default function ProfilePage() {
 
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Mis Subastas Activas */}
+
+              {/* Mis Subastas Activas (Creadas por el Usuario, sin ganador todavía) */}
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6 border-b">
                   <h3 className="text-lg font-semibold">Mis Subastas Activas</h3>
@@ -123,7 +126,6 @@ export default function ProfilePage() {
                                 Ver Detalles
                               </Button>
                             </Link>
-                            {/* Botón para terminar la subasta antes de tiempo */}
                             <Button 
                               variant="outline" 
                               size="sm" 
@@ -141,7 +143,39 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Mis Subastas Ganadas */}
+              {/* Subastas Ganadas pero NO Pagadas */}
+              {wonUnpaidAuctions.length > 0 && (
+                <div className="bg-white rounded-lg shadow">
+                  <div className="p-6 border-b">
+                    <h3 className="text-lg font-semibold">Subastas Ganadas (Pendiente de Pago)</h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    {wonUnpaidAuctions.map((auction) => (
+                      <div key={auction.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <img
+                            src={auction.images[0]}
+                            alt={auction.title}
+                            className="h-16 w-16 rounded-lg object-cover"
+                          />
+                          <div>
+                            <h4 className="font-semibold">{auction.title}</h4>
+                            <p className="text-sm text-gray-500">Puja final: ${auction.currentBid}</p>
+                          </div>
+                        </div>
+                        {/* Botón para ir a la página de pago simulado */}
+                        <Link to={`/payment/${auction.id}`}>
+                          <Button variant="outline" size="sm">
+                            Realizar Pago
+                          </Button>
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Subastas Ganadas (Pagadas) */}
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6 border-b">
                   <h3 className="text-lg font-semibold">Subastas Ganadas</h3>
@@ -171,7 +205,7 @@ export default function ProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <p>No has ganado ninguna subasta aún.</p>
+                    <p>No has ganado ninguna subasta pagada aún.</p>
                   )}
                 </div>
               </div>
@@ -218,6 +252,7 @@ export default function ProfilePage() {
                   )}
                 </div>
               </div>
+
             </div>
           </div>
         </div>

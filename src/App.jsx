@@ -15,6 +15,7 @@ import ProfileHistoryPage from './pages/ProfileHistoryPage';
 import ProfileSettingsPage from './pages/ProfileSettingsPage';
 import { AuthContext } from './contexts/AuthContext';
 import { checkPaymentDeadlines } from './utils/paymentUtils';
+import PaymentFormPage from './pages/PaymentFormPage';
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -43,6 +44,14 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+  path="/payment/:id"
+  element={
+    <PrivateRoute>
+      <PaymentFormPage />
+    </PrivateRoute>
+  }
+/>
         <Route
           path="/create-auction"
           element={
