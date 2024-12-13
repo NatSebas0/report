@@ -1,5 +1,5 @@
 // src/pages/Home.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Categories, { CATEGORIES } from '../components/Categories';
@@ -7,8 +7,17 @@ import FeaturedAuctions from '../components/FeaturedAuctions';
 import { getLocalStorage } from '../utils/localStorage';
 
 export default function Home() {
-  const auctions = getLocalStorage('auctions') || [];
+  const [auctions, setAuctions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  useEffect(() => {
+    const storedAuctions = getLocalStorage('auctions') || [];
+    setAuctions(storedAuctions);
+  }, []);
+
+  const handleSelectCategory = (category) => {
+    setSelectedCategory(category === selectedCategory ? null : category);
+  };
 
   const filteredAuctions = selectedCategory
     ? auctions.filter(a => a.category === selectedCategory)
@@ -36,7 +45,7 @@ export default function Home() {
           </div>
         </div>
         
-        <Categories onSelectCategory={(cat) => setSelectedCategory(cat)} />
+        <Categories onSelectCategory={handleSelectCategory} />
         <FeaturedAuctions auctions={filteredAuctions} />
       </main>
       <Footer />

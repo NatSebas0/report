@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { AuthContext } from '../contexts/AuthContext';
+import { CATEGORIES } from '../components/Categories';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 
 export default function CreateAuctionPage() {
@@ -31,30 +32,42 @@ export default function CreateAuctionPage() {
       return;
     }
 
+
+    const defaultImage = "https://via.placeholder.com/400x300?text=Subasta"; // Imagen por defecto
+    const finalImages = images.length > 0 ? images : [defaultImage];
+
+
     const newAuction = {
-      id: Date.now(),
-      title,
-      description,
-      currentBid: parseFloat(price),
-      minimumBid: parseFloat(price) + 100,
-      endTime: new Date(Date.now() + parseInt(duration) * 24 * 60 * 60 * 1000),
-      viewerCount: 0,
-      images,
-      seller: {
-        name: currentUser.username,
-        avatar: currentUser.avatar || 'https://via.placeholder.com/150',
-        rating: 4.5, // Valor predeterminado
-        memberSince: '2024',
-        totalSales: 0
-      },
-      bids: []
-    };
+        id: Date.now(),
+        title,
+        description,
+        currentBid: parseFloat(price),
+        minimumBid: parseFloat(price) + 100,
+        endTime: new Date(Date.now() + parseInt(duration) * 24 * 60 * 60 * 1000).toISOString(),
+        isPaid: false,
+        paymentDeadline: null,
+        winner: null,
+        bids: [],
+        category,
+        seller: {
+          id: currentUser.id,
+          name: currentUser.username,
+          email: currentUser.email,
+          avatar: currentUser.avatar || 'https://via.placeholder.com/150',
+          rating: 4.5,
+          memberSince: currentUser.memberSince || new Date().getFullYear().toString(),
+          totalSales: currentUser.totalSales || 0
+        },
+        viewerCount: 0,
+        images: finalImages
+      };
 
     const auctions = getLocalStorage('auctions') || [];
     setLocalStorage('auctions', [newAuction, ...auctions]);
 
     alert('Subasta creada exitosamente!');
-    // Redirigir a la página de inicio o a la página de la subasta
+    // Redirigir a la página de la subasta recién creada
+    navigate(`/auction/${newAuction.id}`);
   };
 
   return (
@@ -146,21 +159,15 @@ export default function CreateAuctionPage() {
                     required
                   >
                     <option value="">Selecciona una categoría</option>
-                    <option>Arte</option>
-                    <option>Coleccionables</option>
-                    <option>Electrónica</option>
-                    <option>Joyería</option>
-                    <option>Relojes</option>
-                    <option>Fotografía</option>
-                    <option>Vehículos</option>
-                    <option>Libros</option>
-                    <option>Música</option>
+                    {CATEGORIES.map((cat, index) => (
+                      <option key={index} value={cat.name}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div className="flex justify-end space-x-4">
-                <Button variant="outline">Cancelar</Button>
+                <Button variant="outline" onClick={() => navigate(-1)}>Cancelar</Button>
                 <Button type="submit">Publicar Subasta</Button>
               </div>
             </form>

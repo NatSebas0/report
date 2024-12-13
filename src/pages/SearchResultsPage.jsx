@@ -1,4 +1,3 @@
-// src/pages/SearchResultsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { SlidersHorizontal, Clock } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -34,9 +33,11 @@ export default function SearchResultsPage() {
             {/* Filtros */}
             <div className="lg:w-64 space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold mb-4">Filtros</h3>
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <SlidersHorizontal className="h-5 w-5 mr-2 text-emerald-600" /> Filtros
+                </h3>
 
-                <div className="mb-4">
+                <div className="relative mb-4">
                   <input
                     type="text"
                     placeholder="Buscar..."
@@ -44,8 +45,11 @@ export default function SearchResultsPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
+                  <span className="absolute top-2 right-3 text-gray-400">
+                    <i className="fa fa-search"></i>
+                  </span>
                 </div>
-                
+
                 <Categories onSelectCategory={(cat) => setSelectedCategory(cat)} />
               </div>
             </div>
@@ -58,7 +62,7 @@ export default function SearchResultsPage() {
                     Resultados de búsqueda
                   </h2>
                   <div className="flex items-center space-x-4">
-                    <select className="px-4 py-2 border rounded-lg text-sm">
+                    <select className="px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-emerald-500">
                       <option>Más relevantes</option>
                       <option>Precio: Menor a mayor</option>
                       <option>Precio: Mayor a menor</option>
@@ -70,14 +74,17 @@ export default function SearchResultsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAuctions.length > 0 ? filteredAuctions.map((auction) => (
-                  <div key={auction.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <div
+                    key={auction.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 hover:shadow-lg"
+                  >
                     <img
                       src={auction.images[0]}
                       alt={auction.title}
                       className="w-full h-48 object-cover"
                     />
                     <div className="p-4">
-                      <h3 className="font-semibold mb-2">{auction.title}</h3>
+                      <h3 className="font-semibold mb-2 text-gray-800">{auction.title}</h3>
                       <div className="flex justify-between items-center mb-3">
                         <div>
                           <p className="text-sm text-gray-500">Puja actual</p>
@@ -92,12 +99,14 @@ export default function SearchResultsPage() {
                         </div>
                       </div>
                       <Link to={`/auction/${auction.id}`}>
-                        <Button className="w-full">Ver Detalles</Button>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                          Ver Detalles
+                        </Button>
                       </Link>
                     </div>
                   </div>
                 )) : (
-                  <p>No se encontraron resultados</p>
+                  <p className="text-gray-500">No se encontraron resultados</p>
                 )}
               </div>
             </div>

@@ -1,18 +1,18 @@
 // src/components/Navbar.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Gavel, User, Bell, Search } from 'lucide-react';
 import Button from './ui/Button';
 import NotificationDropdown from './notifications/NotificationDropdown';
-import { useNotificationStore } from '../stores/notificationStore';
-import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
+import { getUnreadCount } from '../utils/notificationUtils';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
-  const { unreadCount, reset } = useNotificationStore();
   const { currentUser, logout } = useContext(AuthContext);
+
+  const unreadCountReal = currentUser ? getUnreadCount(currentUser.email) : 0;
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ export default function Navbar() {
             <Gavel className="h-8 w-8 text-emerald-600" />
             <span className="ml-2 text-xl font-bold text-gray-800">AUCTIONVIBE</span>
           </Link>
-          
+
           <div className="flex-1 max-w-2xl mx-8">
             <form onSubmit={handleSearch} className="relative">
               <input
@@ -50,15 +50,12 @@ export default function Navbar() {
             <div className="relative">
               <button 
                 className="p-2 rounded-full hover:bg-gray-100 relative"
-                onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  if (unreadCount > 0) reset();
-                }}
+                onClick={() => setShowNotifications(!showNotifications)}
               >
                 <Bell className="h-6 w-6 text-gray-600" />
-                {unreadCount > 0 && (
+                {unreadCountReal > 0 && (
                   <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                    {unreadCount}
+                    {unreadCountReal}
                   </span>
                 )}
               </button>

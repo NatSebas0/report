@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -14,13 +14,24 @@ import PrivateRoute from './components/PrivateRoute';
 import ProfileHistoryPage from './pages/ProfileHistoryPage';
 import ProfileSettingsPage from './pages/ProfileSettingsPage';
 import { AuthContext } from './contexts/AuthContext';
+import { checkPaymentDeadlines } from './utils/paymentUtils';
 
 function App() {
   const { currentUser } = useContext(AuthContext);
 
+  useEffect(() => {
+    checkPaymentDeadlines();
+    // Podrías configurar un intervalo para verificar cada cierto tiempo
+    const interval = setInterval(() => {
+      checkPaymentDeadlines();
+    }, 60 * 60 * 1000); // Cada hora
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Router>
-      <Routes>  
+      <Routes>
         <Route path="/" element={currentUser ? <Navigate to="/home" /> : <Navigate to="/login" />} />
         <Route path="/login" element={currentUser ? <Navigate to="/home" /> : <LoginPage />} />
         <Route path="/register" element={currentUser ? <Navigate to="/home" /> : <RegisterPage />} />
@@ -73,7 +84,7 @@ function App() {
           }
         />
         <Route
-          path="/checkout"
+          path="/checkout/:id"
           element={
             <PrivateRoute>
               <CheckoutPage />

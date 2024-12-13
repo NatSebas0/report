@@ -1,34 +1,24 @@
 // src/components/notifications/NotificationDropdown.jsx
-import React from 'react';
+import React, { useContext } from 'react';
 import { Bell, DollarSign, Package, AlertCircle } from 'lucide-react';
 import { useNotificationStore } from '../../stores/notificationStore';
+import { getNotificationsForUser, markAllAsRead } from '../../utils/notificationUtils';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export default function NotificationDropdown() {
   const { reset } = useNotificationStore();
+  const { currentUser } = useContext(AuthContext);
 
-  const notifications = [
-    {
-      id: '1',
-      type: 'bid',
-      message: 'Nueva puja en tu subasta "Reloj Vintage"',
-      time: 'Hace 5 minutos',
-      read: false
-    },
-    {
-      id: '2',
-      type: 'win',
-      message: '¡Felicidades! Ganaste la subasta "Cámara Leica"',
-      time: 'Hace 2 horas',
-      read: false
-    },
-    {
-      id: '3',
-      type: 'outbid',
-      message: 'Te han superado en la subasta "Pintura Arte Moderno"',
-      time: 'Hace 3 horas',
-      read: true
-    }
-  ];
+  if (!currentUser) {
+    return null;
+  }
+
+  const notifications = getNotificationsForUser(currentUser.email);
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead(currentUser.email);
+    reset();
+  };
 
   const getIcon = (type) => {
     switch (type) {
@@ -48,13 +38,13 @@ export default function NotificationDropdown() {
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Notificaciones</h3>
-          <button onClick={() => reset()} className="text-sm text-emerald-600 hover:text-emerald-700">
+          <button onClick={handleMarkAllAsRead} className="text-sm text-emerald-600 hover:text-emerald-700">
             Marcar todo como leído
           </button>
         </div>
       </div>
       <div className="max-h-96 overflow-y-auto">
-        {notifications.map((notification) => (
+        {notifications.length > 0 ? notifications.map((notification) => (
           <div
             key={notification.id}
             className={`p-4 hover:bg-gray-50 ${
@@ -71,7 +61,11 @@ export default function NotificationDropdown() {
               </div>
             </div>
           </div>
-        ))}
+        )) : (
+          <div className="p-4">
+            <p className="text-sm text-gray-500">No tienes notificaciones</p>
+          </div>
+        )}
       </div>
       <div className="p-4 border-t">
         <button className="text-sm text-emerald-600 hover:text-emerald-700 w-full text-center">
